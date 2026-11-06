@@ -207,8 +207,19 @@ function renderHistory() {
   app.innerHTML = hist.length ? hist.map((r, i) => {
     const c = cardRows(r);
     return `<div class="card"><b>${esc(r.courseName)}</b><div class="hint">${new Date(r.date).toLocaleDateString()} · Goal ${r.goal}</div>
-      <div style="font-size:26px">${c.ts} <small>(${fmtVs(c.ts - c.tp)})</small></div></div>`;
-  }).join('') : '<p class="status">No saved rounds yet.</p>';
+      <div class="row"><div style="font-size:26px">${c.ts} <small>(${fmtVs(c.ts - c.tp)})</small></div>
+      <button class="sec del" data-i="${i}" style="flex:0 0 auto;color:var(--red)">Delete</button></div></div>`;
+  }).join('') + '<button class="sec" id="clearall" style="width:100%;color:var(--red);margin-top:6px">Delete all history</button>'
+  : '<p class="status">No saved rounds yet.</p>';
+  document.querySelectorAll('.del').forEach(b => b.onclick = () => {
+    if (!confirm('Delete this round? This cannot be undone.')) return;
+    const h = store.get('gsk_history', []); h.splice(+b.dataset.i, 1); store.set('gsk_history', h); renderHistory();
+  });
+  const ca = $('#clearall');
+  if (ca) ca.onclick = () => {
+    if (!confirm('Delete ALL saved rounds? This cannot be undone.')) return;
+    store.set('gsk_history', []); renderHistory();
+  };
 }
 
 render();
